@@ -278,55 +278,142 @@ class user_interface {
 };
 
 void print_usage() {
-	std::cout << " Usage: cppm -[hbBRaAdSj] [-d delay] [-r spawn rate] [-l max length] [-m min length]\n";
+	std::cout << " Usage: cppm -[hbBRaAdSj] [-d delay] [-sr spawn rate]"
+			  << "[-l max length] [-m min length] [-H head color] [-C background color] [-c text color]\n";
 	std::cout << " -h: print usage\n";
 	std::cout << " -b: half bold characters\n";
 	std::cout << " -B: all bold characters\n";
-	std::cout << " -R: rainbow mode\n";
+	std::cout << " -r: rainbow mode\n";
+	std::cout << " -R: reverse mode\n";
 	std::cout << " -a: include lower case alphabet\n";
 	std::cout << " -A: include upper case alphabet\n";
 	std::cout << " -d: include 0-9 digits\n";
 	std::cout << " -S: include symbols\n";
 	std::cout << " -j: include half-width japanese kata\n";
 	std::cout << " -d: delay (0 - 10) before updating screen\n";
-	std::cout << " -r: spawn rate (0 - 10) row spawn rate\n";
+	std::cout << " -sr: spawn rate (0 - 10) row spawn rate\n";
 	std::cout << " -l: max length (0 - 50) row max length\n";
 	std::cout << " -m: min length (0 - 49) row min length\n";
+	std::cout << " -hc: set head color\n";
+	std::cout << " -bc: set background color\n";
+	std::cout << " -c: set character colors\n";
 	exit(0);
+}
+
+int process_color(std::string color) {
+	int color_code;
+	if(color == "none") {
+		color_code = -1;
+	} else if(color == "black") {
+		color_code = 0;
+	} else if(color == "red") {
+		color_code = 1;
+	} else if(color == "green") {
+		color_code = 2;
+	} else if(color == "yellow") {
+		color_code = 3;
+	} else if(color == "blue") {
+		color_code = 4;
+	} else if(color == "magenta") {
+		color_code = 5;
+	} else if(color == "cyan") {
+		color_code = 6;
+	} else if(color == "white") {
+		color_code = 7;
+	} else {
+		std::cout << "color " << color << " is invalid.\n";
+		std::cout << " Colors: black, red, yellow, green, blue, magenta, cyan, white, none\n";
+		exit(0);
+	}
+	return color_code;
 }
 
 int main(int argc, char *argv[]) {
 	for(int i = 1; i < argc; i++) {
 		if(std::string(argv[i]) == "-d" && i != argc - 1) {
 			delay = std::stoi(argv[i + 1]);
-		} else if(std::string(argv[i]) == "-r" && i != argc - 1) {
+			i++;
+		}
+		
+		else if(std::string(argv[i]) == "-sr" && i != argc - 1) {
 			drip_spawn_rate = std::stoi(argv[i + 1]);
-		} else if(std::string(argv[i]) == "-l" && i != argc - 1) {
+			i++;
+		}
+		
+		else if(std::string(argv[i]) == "-l" && i != argc - 1) {
 			drip_length = std::stoi(argv[i + 1]);
-		} else if(std::string(argv[i]) == "-m" && i != argc - 1) {
+			i++;
+		}
+		
+		else if(std::string(argv[i]) == "-m" && i != argc - 1) {
 			min_drip_length = std::stoi(argv[i + 1]);
-		} else if(std::string(argv[i]) == "-b") {
+			i++;
+		}
+		
+		else if(std::string(argv[i]) == "-b") {
 			random_bold = true;
-		} else if(std::string(argv[i]) == "-B") {
+		}
+		
+		else if(std::string(argv[i]) == "-B") {
 			all_bold = true;
-		} else if(std::string(argv[i]) == "-r") {
-			reverse = true;
-		} else if(std::string(argv[i]) == "-R") {
+		}
+		
+		else if(std::string(argv[i]) == "-r") {
 			rainbow = true;
-		} else if(std::string(argv[i]) == "-a") {
+		}
+		
+		else if(std::string(argv[i]) == "-R") {
+			reverse = true;
+		}
+		
+		else if(std::string(argv[i]) == "-a") {
 			include_lower_case_alpha = true;
-		} else if(std::string(argv[i]) == "-A") {
+		}
+		
+		else if(std::string(argv[i]) == "-A") {
 			include_upper_case_alpha = true;
-		} else if(std::string(argv[i]) == "-d") {
+		}
+		 
+		else if(std::string(argv[i]) == "-d") {
 			include_digits = true;
-		} else if(std::string(argv[i]) == "-S") {
+		}
+		
+		else if(std::string(argv[i]) == "-S") {
 			include_symbols = true;
-		} else if(std::string(argv[i]) == "-j") {
+		}
+		
+		else if(std::string(argv[i]) == "-j") {
 			include_japanese = true;
-		} else if(std::string(argv[i]) == "-h") {
+		}
+		
+		else if(std::string(argv[i]) == "-h") {
 			print_usage();
 			exit(0);
-		} else {
+		}
+
+		else if(std::string(argv[i]) == "-hc" && i != argc - 1) {
+			head_color = process_color(argv[i + 1]);
+			i++;
+		}
+
+		else if(std::string(argv[i]) == "-bc" && i != argc - 1) {
+			background_color = process_color(argv[i + 1]);
+			i++;
+		}
+
+		else if(std::string(argv[i]) == "-c") {
+			i++;
+			while(i != argc) {
+				if(argv[i][0] == '-') {
+					--i;
+					break;
+				}
+				matrix_color.push_back(process_color(argv[i]));
+				++i;
+			}
+		}
+		
+		else {
 			print_usage();
 			exit(1);
 		}
