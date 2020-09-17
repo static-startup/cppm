@@ -1,5 +1,5 @@
-# include <locale.h>
 # include <ncurses.h>
+# include <locale.h>
 # include <iostream>
 # include <stdlib.h>
 # include <stdio.h>
@@ -98,7 +98,9 @@ class user_interface {
 		}
 
 		void init_ncurses() {
-			setlocale(LC_ALL, "");
+			if(!setlocale(LC_ALL, "")) {
+				std::cout << "warning: no locale set." << std::endl;
+			}
 			initscr();
 			cbreak();
 			noecho();
