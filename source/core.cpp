@@ -32,7 +32,6 @@ class user_interface {
 				wint_t value;
 				int attribute;
 				bool is_head;
-				bool draw = false;
 		};
 
 		unsigned long timer = current_time();
@@ -47,8 +46,7 @@ class user_interface {
 
 		std::vector<wint_t> upper_case_alpha = {
 			'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
-			'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
-			'U', 'V', 'W', 'X', 'Y', 'Z',
+			'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
 		};
 
 
@@ -64,6 +62,11 @@ class user_interface {
 
 		std::vector<wint_t> japanese = {
 			L'ｦ', L'ｧ', L'ｨ', L'ｩ', L'ｪ', L'ｫ', L'ｬ', L'ｭ', L'ｮ', L'ｯ',
+			L'ｰ', L'ｱ', L'ｲ', L'ｳ', L'ｴ', L'ｵ', L'ｶ', L'ｷ', L'ｸ', L'ｹ',
+			L'ｺ', L'ｻ', L'ｼ', L'ｽ', L'ｾ', L'ｿ', L'ﾀ', L'ﾁ', L'ﾂ', L'ﾃ',
+			L'ﾄ', L'ﾅ', L'ﾆ', L'ﾇ', L'ﾈ', L'ﾉ', L'ﾊ', L'ﾋ', L'ﾌ', L'ﾍ',
+			L'ﾎ', L'ﾏ', L'ﾐ', L'ﾑ', L'ﾒ', L'ﾓ', L'ﾔ', L'ﾕ', L'ﾖ', L'ﾗ',
+			L'ﾘ', L'ﾙ', L'ﾚ', L'ﾛ', L'ﾜ', L'ﾝ',
 		};
 
 		int matrix_w, matrix_h;
@@ -82,18 +85,16 @@ class user_interface {
 			start_color();
 			use_default_colors();
 
-			init_pair(1, matrix_color, matrix_background_color);
-			init_pair(2, head_color, head_background_color);
-
 			if(rainbow) {
-				init_pair(3, 1, -1);
-				init_pair(4, 2, -1);
-				init_pair(5, 3, -1);
-				init_pair(6, 4, -1);
-				init_pair(7, 5, -1);
-				init_pair(8, 6, -1);
-				init_pair(9, 7, -1);
+				matrix_color = {1, 2, 3, 4, 5, 6, 7};
 			}
+
+			for(int i = 0; i < matrix_color.size(); i++) {
+				init_pair(i + 1, matrix_color[i], background_color);
+			}
+
+			init_pair(matrix_color.size() + 2, 0, background_color);
+			init_pair(matrix_color.size() + 1, head_color, background_color);
 		}
 
 		void init_ncurses() {
@@ -111,12 +112,18 @@ class user_interface {
 			return characters[rand() % characters.size()];
 		}
 
-		int random_attribute() {
+		int random_attribute(bool is_head) {
 			int attributes = 0;
-			attributes = attributes|(rainbow ? COLOR_PAIR(rand() % 6 + 2) : 0);
 			attributes = attributes|(reverse ? A_REVERSE : 0);
 			attributes = attributes|(all_bold ? A_BOLD : 0);
 			attributes = attributes|(random_bold && !all_bold && rand() % 2 == 0 ? A_BOLD : 0);
+
+			if(!is_head) {
+				attributes = attributes|(COLOR_PAIR(rand() % matrix_color.size() + 1));
+			} else {
+				attributes = attributes|(COLOR_PAIR(1 + matrix_color.size()));
+			}
+
 			return attributes;
 		}
 
@@ -165,12 +172,12 @@ class user_interface {
 				for(int k = 0; k < matrix_w; k++) {
 					if(i == 0) {
 						if(rand() % drip_spawn_rate / 150 == 0) {
-							matrix[i][k] = {random_character(), 0, true, true};
+							matrix[i][k] = {random_character(), random_attribute(true), true};
 						} else {
-							matrix[i][k] = {' ', 0, false};
+							matrix[i][k] = {' ', COLOR_PAIR(matrix_color.size() + 2), false};
 						}
 					} else {
-						matrix[i][k] = {' ', false};
+						matrix[i][k] = {' ', COLOR_PAIR(matrix_color.size() + 2), false};
 					}
 				}
 			}
@@ -181,16 +188,8 @@ class user_interface {
 
 					for(int i = 0; i < matrix_h; i++) {
 						for(int k = 0; k < matrix_w; k++) {
-							if(matrix[i][k].is_head) {
-								wattron(stdscr, COLOR_PAIR(2));
-							} else {
-								wattron(stdscr, COLOR_PAIR(1));
-							}
-
 							wattron(stdscr, matrix[i][k].attribute);
-							if(matrix[i][k].draw) {
-								mvwprintw(stdscr, i, k, "%lc", matrix[i][k].value);
-							}
+							mvwprintw(stdscr, i, k, "%lc", matrix[i][k].value);
 							wattroff(stdscr, COLOR_PAIR(1)
 											|COLOR_PAIR(2)
 											|A_BOLD
@@ -212,12 +211,11 @@ class user_interface {
 						for(int i = 0; i < matrix_h; i++) {
 							// add random code drip
 							if(rand() % drip_spawn_rate == 0
-							&& matrix[0][k].value == ' '
-							&& !matrix[0][k].draw) {
+							&& matrix[0][k].value == ' ') {
 
 								matrix[0][k].is_head = true;
 								matrix[0][k].value = random_character();
-								matrix[0][k].draw = true;
+								matrix[0][k].attribute = random_attribute(true);
 							}
 
 							// if tail of column found
@@ -227,6 +225,7 @@ class user_interface {
 								// remove tail
 								if(i != 0) {
 									matrix[i][k].value = ' ';
+									matrix[i][k].attribute = COLOR_PAIR(matrix_color.size() + 2);
 								}
 
 								// does it have no tail
@@ -245,16 +244,19 @@ class user_interface {
 								&& i > min_drip_length) {
 
 									matrix[0][k].value = ' ';
+									matrix[0][k].attribute = COLOR_PAIR(matrix_color.size() + 2);
 								}
 
 								if(i != matrix_h - 1) { // move head
 									matrix[i][k].is_head = false;
+									matrix[i][k].attribute = random_attribute(false);
+
 									matrix[i + 1][k].is_head = true;
 									matrix[i + 1][k].value = random_character();
-									matrix[i + 1][k].attribute = random_attribute();
-									matrix[i + 1][k].draw = true;
+									matrix[i + 1][k].attribute = random_attribute(true);
 								} else if(matrix[i][k].is_head) { // remove head
 									matrix[i][k].is_head = false;
+									matrix[i][k].attribute = random_attribute(false);
 								}
 
 								i++;

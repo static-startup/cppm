@@ -7,7 +7,7 @@ static int speed = 60;
 
 /* max = 100 
  * min = 0 */
-static int drip_spawn_rate = 70;
+static int drip_spawn_rate = 60;
 
 /* max = 50
  * min = 0 */
@@ -18,10 +18,10 @@ static int drip_length = 35;
 static int min_drip_length = 4;
 
 /* colors */
-static int matrix_color = GREEN;
-static int matrix_background_color = DEFAULT;
+static std::vector<int> matrix_color = { GREEN };
+
 static int head_color = WHITE;
-static int head_background_color = DEFAULT;
+static int background_color = DEFAULT;
 
 /* bold */
 static bool random_bold = true;
