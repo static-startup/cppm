@@ -1,36 +1,41 @@
 # ifndef CONFIG_H
 # define CONFIG_H
 
-/* max = 1000
+/* max = 100
  * min = 0 */
-static int speed = 600;
+static int speed = 60;
 
-/* max = 1000 
+/* max = 100 
  * min = 0 */
-static int spawn_rate = 700;
+static int drip_spawn_rate = 70;
 
-/* max = 500
+/* max = 50
  * min = 0 */
 static int drip_length = 35;
 
-/* max = 499
+/* max = 49
  * min = 0 */
 static int min_drip_length = 4;
 
 /* colors */
-static int base_text_color = GREEN;
-static int base_background_color = DEFAULT;
-static int head_text_color = WHITE;
+static int matrix_color = GREEN;
+static int matrix_background_color = DEFAULT;
+static int head_color = WHITE;
 static int head_background_color = DEFAULT;
 
 /* bold */
-static bool random_bold = false;
-static bool all_bold = true;
+static bool random_bold = true;
+static bool all_bold = false;
 
 /* characters */
-static bool lower_case_alpha = true;
-static bool upper_case_alpha = true;
-static bool digits = true;
-static bool symbols = true;
+static bool include_lower_case_alpha = false;
+static bool include_upper_case_alpha = false;
+static bool include_digits = false;
+static bool include_symbols = false;
+static bool include_japanese = true;
+
+/* random */
+static bool rainbow = false;
+static bool reverse = false;
 
 # endif

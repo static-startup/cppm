@@ -1,3 +1,4 @@
+# include <locale.h>
 # include <ncurses.h>
 # include <iostream>
 # include <stdlib.h>
@@ -28,35 +29,41 @@ class user_interface {
 		struct node {
 			public:
 				
-				char value;
+				wint_t value;
+				int attribute;
 				bool is_head;
+				bool draw = false;
 		};
 
 		unsigned long timer = current_time();
 
-		std::vector<char> characters;
+		std::vector<wint_t> characters;
 
-		std::vector<char> lower_case_letters = {
+		std::vector<wint_t> lower_case_alpha = {
 			'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
 			'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
 			'u', 'v', 'w', 'x', 'y', 'z',
 		};
 
-		std::vector<char> upper_case_letters = {
+		std::vector<wint_t> upper_case_alpha = {
 			'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
 			'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T',
 			'U', 'V', 'W', 'X', 'Y', 'Z',
 		};
 
 
-		std::vector<char> numbers = {
+		std::vector<wint_t> digits = {
 			'1', '2', '3', '4', '5', '6', '7', '8', '9', '0',
 		};
 
-		std::vector<char> special = {
+		std::vector<wint_t> symbols = {
 			'!', '@', '#', '$', '%', '^', '&', '*', '(', ')',
 			'`', '~', '<', '>', '?', '/', '\\', '"', '_', '-',
 			';', ':', '\'', ',', '.', '|', '{', '}', '[', ']',
+		};
+
+		std::vector<wint_t> japanese = {
+			L'ｦ', L'ｧ', L'ｨ', L'ｩ', L'ｪ', L'ｫ', L'ｬ', L'ｭ', L'ｮ', L'ｯ',
 		};
 
 		int matrix_w, matrix_h;
@@ -75,11 +82,22 @@ class user_interface {
 			start_color();
 			use_default_colors();
 
-			init_pair(1, base_text_color, base_background_color);
-			init_pair(2, head_text_color, head_background_color);
+			init_pair(1, matrix_color, matrix_background_color);
+			init_pair(2, head_color, head_background_color);
+
+			if(rainbow) {
+				init_pair(3, 1, -1);
+				init_pair(4, 2, -1);
+				init_pair(5, 3, -1);
+				init_pair(6, 4, -1);
+				init_pair(7, 5, -1);
+				init_pair(8, 6, -1);
+				init_pair(9, 7, -1);
+			}
 		}
 
 		void init_ncurses() {
+			setlocale(LC_ALL, "");
 			initscr();
 			cbreak();
 			noecho();
@@ -89,8 +107,17 @@ class user_interface {
 			curs_set(false);
 		}
 
-		char random_character() {
-			return characters[rand() % characters.size() - 1];
+		wint_t random_character() {
+			return characters[rand() % characters.size()];
+		}
+
+		int random_attribute() {
+			int attributes = 0;
+			attributes = attributes|(rainbow ? COLOR_PAIR(rand() % 6 + 2) : 0);
+			attributes = attributes|(reverse ? A_REVERSE : 0);
+			attributes = attributes|(all_bold ? A_BOLD : 0);
+			attributes = attributes|(random_bold && !all_bold && rand() % 2 == 0 ? A_BOLD : 0);
+			return attributes;
 		}
 
 		void quit(std::string message) {
@@ -100,40 +127,30 @@ class user_interface {
 		}
 
 		void loop() {
-			if(speed > 1000 || speed < 0) {
+			if(speed > 100 || speed < 0) {
 				quit("invalid speed " + std::to_string(speed));
-			}
-
-			if(spawn_rate > 1000 || spawn_rate < 0) {
+			} else if(drip_spawn_rate > 100 || drip_spawn_rate < 0) {
 				quit("invalid spawn rate " + std::to_string(speed));
-			}
-
-			if(drip_length > 500 || drip_length < 0) {
+			} else if(drip_length > 50 || drip_length < 0) {
 				quit("invalid drip length " + std::to_string(drip_length));
-			}
-
-			if(min_drip_length > 499 || min_drip_length < 0) {
+			} else if(min_drip_length > 49 || min_drip_length < 0) {
 				quit("invalid min drip length " + std::to_string(drip_length));
 			}
 
-			if(lower_case_alpha) {
-				characters.insert(characters.end(), lower_case_letters.begin(), lower_case_letters.end());
+			if(include_lower_case_alpha) {
+				characters.insert(characters.end(), lower_case_alpha.begin(), lower_case_alpha.end());
+			} if(include_upper_case_alpha) {
+				characters.insert(characters.end(), upper_case_alpha.begin(), upper_case_alpha.end());
+			} if(include_digits) {
+				characters.insert(characters.end(), digits.begin(), digits.end());
+			} if(include_symbols) {
+				characters.insert(characters.end(), symbols.begin(), symbols.end());
+			} if(include_japanese) {
+				characters.insert(characters.end(), japanese.begin(), japanese.end());
 			}
 
-			if(upper_case_alpha) {
-				characters.insert(characters.end(), upper_case_letters.begin(), upper_case_letters.end());
-			}
-
-			if(digits) {
-				characters.insert(characters.end(), numbers.begin(), numbers.end());
-			}
-
-			if(symbols) {
-				characters.insert(characters.end(), special.begin(), special.end());
-			}
-
-			speed = (1000 - speed) / 10;
-			spawn_rate *= 10;
+			speed = 100 - speed;
+			drip_spawn_rate *= 100;
 
 			matrix_w = COLS;
 			matrix_h = LINES;
@@ -143,22 +160,14 @@ class user_interface {
 			}
 
 			node matrix[matrix_h][matrix_w];
-			int colors[matrix_h][matrix_w];
-
-			for(int i = 0; i < matrix_h; i++) {
-				for(int k = 0; k < matrix_w; k++) {
-					colors[i][k] = all_bold ? A_BOLD : 0;
-					colors[i][k] = rand() % 2 == 0 && random_bold ? A_BOLD : 0;
-				}
-			}
 
 			for(int i = 0; i < matrix_h; i++) {
 				for(int k = 0; k < matrix_w; k++) {
 					if(i == 0) {
-						if(rand() % spawn_rate / 150 == 0) {
-							matrix[i][k] = {random_character(), true};
+						if(rand() % drip_spawn_rate / 150 == 0) {
+							matrix[i][k] = {random_character(), 0, true, true};
 						} else {
-							matrix[i][k] = {' ', false};
+							matrix[i][k] = {' ', 0, false};
 						}
 					} else {
 						matrix[i][k] = {' ', false};
@@ -172,27 +181,43 @@ class user_interface {
 
 					for(int i = 0; i < matrix_h; i++) {
 						for(int k = 0; k < matrix_w; k++) {
-							wattron(stdscr, colors[i][k]);
-
 							if(matrix[i][k].is_head) {
 								wattron(stdscr, COLOR_PAIR(2));
 							} else {
 								wattron(stdscr, COLOR_PAIR(1));
 							}
 
-							mvwaddch(stdscr, i, k, matrix[i][k].value);
-							wattroff(stdscr, COLOR_PAIR(1)|COLOR_PAIR(2)|A_BOLD);
+							wattron(stdscr, matrix[i][k].attribute);
+							if(matrix[i][k].draw) {
+								mvwprintw(stdscr, i, k, "%lc", matrix[i][k].value);
+							}
+							wattroff(stdscr, COLOR_PAIR(1)
+											|COLOR_PAIR(2)
+											|A_BOLD
+											|A_REVERSE);
+
+							if(rainbow) {
+								wattroff(stdscr, COLOR_PAIR(3)
+												|COLOR_PAIR(4)
+												|COLOR_PAIR(5)
+												|COLOR_PAIR(6)
+												|COLOR_PAIR(7)
+												|COLOR_PAIR(8)
+												|COLOR_PAIR(9));
+							}
 						}
 					}
 
 					for(int k = 0; k < matrix_w; k++) {
 						for(int i = 0; i < matrix_h; i++) {
 							// add random code drip
-							if(rand() % spawn_rate == 0
-							&& matrix[0][k].value == ' ') {
+							if(rand() % drip_spawn_rate == 0
+							&& matrix[0][k].value == ' '
+							&& !matrix[0][k].draw) {
 
 								matrix[0][k].is_head = true;
 								matrix[0][k].value = random_character();
+								matrix[0][k].draw = true;
 							}
 
 							// if tail of column found
@@ -226,6 +251,8 @@ class user_interface {
 									matrix[i][k].is_head = false;
 									matrix[i + 1][k].is_head = true;
 									matrix[i + 1][k].value = random_character();
+									matrix[i + 1][k].attribute = random_attribute();
+									matrix[i + 1][k].draw = true;
 								} else if(matrix[i][k].is_head) { // remove head
 									matrix[i][k].is_head = false;
 								}
