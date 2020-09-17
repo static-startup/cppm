@@ -1,13 +1,13 @@
 # ifndef CONFIG_H
 # define CONFIG_H
 
-/* max = 100
+/* max = 10
  * min = 0 */
-static int speed = 60;
+static int delay = 5;
 
-/* max = 100 
+/* max = 10 
  * min = 0 */
-static int drip_spawn_rate = 60;
+static int drip_spawn_rate = 8;
 
 /* max = 50
  * min = 0 */
@@ -24,7 +24,7 @@ static int head_color = WHITE;
 static int background_color = DEFAULT;
 
 /* bold */
-static bool random_bold = true;
+static bool random_bold = false;
 static bool all_bold = false;
 
 /* characters */
@@ -32,7 +32,7 @@ static bool include_lower_case_alpha = false;
 static bool include_upper_case_alpha = false;
 static bool include_digits = false;
 static bool include_symbols = false;
-static bool include_japanese = true;
+static bool include_japanese = false;
 
 /* random */
 static bool rainbow = false;

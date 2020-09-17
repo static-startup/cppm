@@ -133,11 +133,11 @@ class user_interface {
 			exit(0);
 		}
 
-		void loop() {
-			if(speed > 100 || speed < 0) {
-				quit("invalid speed " + std::to_string(speed));
-			} else if(drip_spawn_rate > 100 || drip_spawn_rate < 0) {
-				quit("invalid spawn rate " + std::to_string(speed));
+		void bound_config() {
+			if(delay > 10 || delay < 0) {
+				quit("invalid delay " + std::to_string(delay));
+			} else if(drip_spawn_rate > 10 || drip_spawn_rate < 0) {
+				quit("invalid spawn rate " + std::to_string(delay));
 			} else if(drip_length > 50 || drip_length < 0) {
 				quit("invalid drip length " + std::to_string(drip_length));
 			} else if(min_drip_length > 49 || min_drip_length < 0) {
@@ -155,15 +155,19 @@ class user_interface {
 			} if(include_japanese) {
 				characters.insert(characters.end(), japanese.begin(), japanese.end());
 			}
+		}
 
-			speed = 100 - speed;
-			drip_spawn_rate *= 100;
+		void loop() {
+
+			bound_config();
+			
+			drip_spawn_rate *= 1000;
 
 			matrix_w = COLS;
 			matrix_h = LINES;
 
 			if(characters.empty()) {
-				quit("no characters");
+				characters.insert(characters.end(), lower_case_alpha.begin(), lower_case_alpha.end());
 			}
 
 			node matrix[matrix_h][matrix_w];
@@ -171,7 +175,7 @@ class user_interface {
 			for(int i = 0; i < matrix_h; i++) {
 				for(int k = 0; k < matrix_w; k++) {
 					if(i == 0) {
-						if(rand() % drip_spawn_rate / 150 == 0) {
+						if(rand() % drip_spawn_rate == 0) {
 							matrix[i][k] = {random_character(), random_attribute(true), true};
 						} else {
 							matrix[i][k] = {' ', COLOR_PAIR(matrix_color.size() + 2), false};
@@ -264,7 +268,7 @@ class user_interface {
 						}
 					}
 
-					timer = current_time() + speed;
+					timer = current_time() + delay * 8;
 				}
 			}
 
@@ -273,7 +277,61 @@ class user_interface {
 		}
 };
 
-int main() {
+void print_usage() {
+	std::cout << " Usage: cppm -[hbBRaAdSj] [-d delay] [-r spawn rate] [-l max length] [-m min length]\n";
+	std::cout << " -h: print usage\n";
+	std::cout << " -b: half bold characters\n";
+	std::cout << " -B: all bold characters\n";
+	std::cout << " -R: rainbow mode\n";
+	std::cout << " -a: include lower case alphabet\n";
+	std::cout << " -A: include upper case alphabet\n";
+	std::cout << " -d: include 0-9 digits\n";
+	std::cout << " -S: include symbols\n";
+	std::cout << " -j: include half-width japanese kata\n";
+	std::cout << " -d: delay (0 - 10) before updating screen\n";
+	std::cout << " -r: spawn rate (0 - 10) row spawn rate\n";
+	std::cout << " -l: max length (0 - 50) row max length\n";
+	std::cout << " -m: min length (0 - 49) row min length\n";
+	exit(0);
+}
+
+int main(int argc, char *argv[]) {
+	for(int i = 1; i < argc; i++) {
+		if(std::string(argv[i]) == "-d" && i != argc - 1) {
+			delay = std::stoi(argv[i + 1]);
+		} else if(std::string(argv[i]) == "-r" && i != argc - 1) {
+			drip_spawn_rate = std::stoi(argv[i + 1]);
+		} else if(std::string(argv[i]) == "-l" && i != argc - 1) {
+			drip_length = std::stoi(argv[i + 1]);
+		} else if(std::string(argv[i]) == "-m" && i != argc - 1) {
+			min_drip_length = std::stoi(argv[i + 1]);
+		} else if(std::string(argv[i]) == "-b") {
+			random_bold = true;
+		} else if(std::string(argv[i]) == "-B") {
+			all_bold = true;
+		} else if(std::string(argv[i]) == "-r") {
+			reverse = true;
+		} else if(std::string(argv[i]) == "-R") {
+			rainbow = true;
+		} else if(std::string(argv[i]) == "-a") {
+			include_lower_case_alpha = true;
+		} else if(std::string(argv[i]) == "-A") {
+			include_upper_case_alpha = true;
+		} else if(std::string(argv[i]) == "-d") {
+			include_digits = true;
+		} else if(std::string(argv[i]) == "-S") {
+			include_symbols = true;
+		} else if(std::string(argv[i]) == "-j") {
+			include_japanese = true;
+		} else if(std::string(argv[i]) == "-h") {
+			print_usage();
+			exit(0);
+		} else {
+			print_usage();
+			exit(1);
+		}
+	}
+
 	srand(time(NULL));
 
 	user_interface ui;
