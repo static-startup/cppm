@@ -6,7 +6,7 @@ cppm gives you a cool matrix screen from the movies. You can use a combination o
 
 Here are some screenshots!
 
-![japanese](https://github.com/static-startup/cppm/tree/master/images/japanese.png)
-![ascii](https://github.com/static-startup/cppm/tree/master/images/ascii.png)
-![wacky](https://github.com/static-startup/cppm/tree/master/images/wacky.png)
-![classic](https://github.com/static-startup/cppm/tree/master/images/classic.png)
+![japanese](https://github.com/static-startup/cppm/blob/master/images/japanese.png)
+![ascii](https://github.com/static-startup/cppm/blob/master/images/ascii.png)
+![wacky](https://github.com/static-startup/cppm/blob/master/images/wacky.png)
+![classic](https://github.com/static-startup/cppm/blob/master/images/classic.png)
