@@ -11,6 +11,49 @@
 
 # include "config.h"
 
+std::vector<wint_t> characters;
+
+std::vector<wint_t> lower_case_alpha = {
+	'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
+	'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
+	'u', 'v', 'w', 'x', 'y', 'z',
+};
+
+std::vector<wint_t> upper_case_alpha = {
+	'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
+	'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
+};
+
+
+std::vector<wint_t> digits = {
+	'1', '2', '3', '4', '5', '6', '7', '8', '9', '0',
+};
+
+std::vector<wint_t> symbols = {
+	'!', '@', '#', '$', '%', '^', '&', '*', '(', ')',
+	'`', '~', '<', '>', '?', '/', '\\', '"', '_', '-',
+	';', ':', '\'', ',', '.', '|', '{', '}', '[', ']',
+};
+
+std::vector<wint_t> matrix_symbols = {
+	'-', '=', '*', '_', '+', '|', ':', '<', '>', '"',
+};
+
+std::vector<wint_t> japanese = {
+	L'ｦ', L'ｧ', L'ｨ', L'ｩ', L'ｪ', L'ｫ', L'ｬ', L'ｭ', L'ｮ', L'ｯ',
+	L'ｰ', L'ｱ', L'ｲ', L'ｳ', L'ｴ', L'ｵ', L'ｶ', L'ｷ', L'ｸ', L'ｹ',
+	L'ｺ', L'ｻ', L'ｼ', L'ｽ', L'ｾ', L'ｿ', L'ﾀ', L'ﾁ', L'ﾂ', L'ﾃ',
+	L'ﾄ', L'ﾅ', L'ﾆ', L'ﾇ', L'ﾈ', L'ﾉ', L'ﾊ', L'ﾋ', L'ﾌ', L'ﾍ',
+	L'ﾎ', L'ﾏ', L'ﾐ', L'ﾑ', L'ﾒ', L'ﾓ', L'ﾔ', L'ﾕ', L'ﾖ', L'ﾗ',
+	L'ﾘ', L'ﾙ', L'ﾚ', L'ﾛ', L'ﾜ', L'ﾝ',
+};
+
+std::vector<wint_t> greek = {
+	L'α', L'β', L'γ', L'δ', L'ε', L'ζ', L'η', L'θ', L'ι', L'κ',
+	L'λ', L'μ', L'ν', L'ξ', L'ο', L'π', L'ρ', L'σ', L'ς', L'τ',
+	L'υ', L'φ', L'χ', L'ψ', L'ω',
+};
+
 class user_interface {
 	public:
 
@@ -23,39 +66,6 @@ class user_interface {
 		};
 
 		unsigned long timer = current_time();
-
-		std::vector<wint_t> characters;
-
-		std::vector<wint_t> lower_case_alpha = {
-			'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j',
-			'k', 'l', 'm', 'n', 'o', 'p', 'q', 'r', 's', 't',
-			'u', 'v', 'w', 'x', 'y', 'z',
-		};
-
-		std::vector<wint_t> upper_case_alpha = {
-			'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J',
-			'K', 'L', 'M', 'N', 'O', 'P', 'Q', 'R', 'S', 'T', 'U', 'V', 'W', 'X', 'Y', 'Z',
-		};
-
-
-		std::vector<wint_t> digits = {
-			'1', '2', '3', '4', '5', '6', '7', '8', '9', '0',
-		};
-
-		std::vector<wint_t> symbols = {
-			'!', '@', '#', '$', '%', '^', '&', '*', '(', ')',
-			'`', '~', '<', '>', '?', '/', '\\', '"', '_', '-',
-			';', ':', '\'', ',', '.', '|', '{', '}', '[', ']',
-		};
-
-		std::vector<wint_t> japanese = {
-			L'ｦ', L'ｧ', L'ｨ', L'ｩ', L'ｪ', L'ｫ', L'ｬ', L'ｭ', L'ｮ', L'ｯ',
-			L'ｰ', L'ｱ', L'ｲ', L'ｳ', L'ｴ', L'ｵ', L'ｶ', L'ｷ', L'ｸ', L'ｹ',
-			L'ｺ', L'ｻ', L'ｼ', L'ｽ', L'ｾ', L'ｿ', L'ﾀ', L'ﾁ', L'ﾂ', L'ﾃ',
-			L'ﾄ', L'ﾅ', L'ﾆ', L'ﾇ', L'ﾈ', L'ﾉ', L'ﾊ', L'ﾋ', L'ﾌ', L'ﾍ',
-			L'ﾎ', L'ﾏ', L'ﾐ', L'ﾑ', L'ﾒ', L'ﾓ', L'ﾔ', L'ﾕ', L'ﾖ', L'ﾗ',
-			L'ﾘ', L'ﾙ', L'ﾚ', L'ﾛ', L'ﾜ', L'ﾝ',
-		};
 
 		unsigned long current_time() {
 			return std::chrono::duration_cast<std::chrono::milliseconds>(
@@ -121,20 +131,6 @@ class user_interface {
 			endwin();
 			std::cout << message << std::endl;
 			exit(0);
-		}
-
-		void include_charsets() {
-			if(include_lower_case_alpha) {
-				characters.insert(characters.end(), lower_case_alpha.begin(), lower_case_alpha.end());
-			} if(include_upper_case_alpha) {
-				characters.insert(characters.end(), upper_case_alpha.begin(), upper_case_alpha.end());
-			} if(include_digits) {
-				characters.insert(characters.end(), digits.begin(), digits.end());
-			} if(include_symbols) {
-				characters.insert(characters.end(), symbols.begin(), symbols.end());
-			} if(include_japanese) {
-				characters.insert(characters.end(), japanese.begin(), japanese.end());
-			}
 		}
 
 		void bound_config() {
@@ -215,9 +211,22 @@ class user_interface {
 							matrix[i][k].is_head = false;
 							matrix[i][k].attribute = random_attribute(false);
 
-							matrix[i + 1][k].is_head = true;
-							matrix[i + 1][k].value = random_character();
-							matrix[i + 1][k].attribute = random_attribute(true);
+							if(i != matrix.size() - 2
+							&& rand() % 10 == 0
+							&& random_speed) {
+
+								matrix[i + 1][k].is_head = false;
+								matrix[i + 1][k].value = random_character();
+								matrix[i + 1][k].attribute = random_attribute(false);
+
+								matrix[i + 2][k].is_head = true;
+								matrix[i + 2][k].value = random_character();
+								matrix[i + 2][k].attribute = random_attribute(true);
+							} else {
+								matrix[i + 1][k].is_head = true;
+								matrix[i + 1][k].value = random_character();
+								matrix[i + 1][k].attribute = random_attribute(true);
+							}
 						} else if(matrix[i][k].is_head) { // remove head
 							matrix[i][k].is_head = false;
 							matrix[i][k].attribute = random_attribute(false);
@@ -242,7 +251,6 @@ class user_interface {
 		
 		void loop() {
 			bound_config();
-			include_charsets();
 			adjust_config();
 			init_color_pairs();
 			
@@ -263,25 +271,25 @@ class user_interface {
 };
 
 void print_usage() {
-	std::cout << " Usage: cppm -[hbBRaAdSj] [-d delay] [-sr spawn rate]"
-			  << "[-l max length] [-m min length] [-H head color] [-C background color] [-c text color]\n";
-	std::cout << " -h: print usage\n";
-	std::cout << " -b: half bold characters\n";
-	std::cout << " -B: all bold characters\n";
-	std::cout << " -r: rainbow mode\n";
-	std::cout << " -R: reverse mode\n";
-	std::cout << " -a: include lower case alphabet\n";
-	std::cout << " -A: include upper case alphabet\n";
-	std::cout << " -d: include 0-9 digits\n";
-	std::cout << " -S: include symbols\n";
-	std::cout << " -j: include half-width japanese kata\n";
-	std::cout << " -d: delay (0 - 10) before updating screen\n";
-	std::cout << " -sr: spawn rate (0 - 10) row spawn rate\n";
-	std::cout << " -l: max length (0 - 50) row max length\n";
-	std::cout << " -m: min length (0 - 49) row min length\n";
-	std::cout << " -hc: set head color\n";
-	std::cout << " -bc: set background color\n";
-	std::cout << " -c: set character colors\n";
+	std::cout << " Usage: cppm [-d DELAY] [-sr SPAWN_RATE] [-l MAX_LENGTH] [-m MIN_LENGTH] [-b] [-B]"
+			  << "[-r] [-R] [-h] [-hc COLOR] [-bc COLOR] [-s] [-c COLOR] [-cs CHARACTER_SETS]\n\n";
+	std::cout << " -d:  delay (0 - 10) delay before screen update\n";
+	std::cout << " -sr: spawn rate (0 - 10) of rows\n";
+	std::cout << " -l:  length (0 - 50) row length\n";
+	std::cout << " -m:  minimal length (0 - 49) minimal row length\n";
+	std::cout << " -b:  random bold characters\n";
+	std::cout << " -B:  every character is bold\n";
+	std::cout << " -r:  every character's color is rainbow\n";
+	std::cout << " -R:  every character's background color and foreground color is reversed\n";
+	std::cout << " -h:  print usage\n";
+	std::cout << " -hc: head color\n";
+	std::cout << " -bc: background color\n";
+	std::cout << " -s:  random speed\n";
+	std::cout << " -c:  set matrix color\n";
+	std::cout << " -cs: set character sets\n\n";
+	std::cout << " Colors: black, red, yellow, green, blue, magenta, cyan, white, none\n\n";
+	std::cout << " Character Sets:\n a: lower case alphabet\n A: upper case alphabet\n d: 0-9 numbers"
+			  << "\n s: common symbols\n j: half-width japanese kana\n g: greek symbols\n S: symbols from matrix movie\n";
 	exit(0);
 }
 
@@ -351,26 +359,6 @@ void process_arguments(int argc, char *argv[]) {
 			reverse = true;
 		}
 		
-		else if(std::string(argv[i]) == "-a") {
-			include_lower_case_alpha = true;
-		}
-		
-		else if(std::string(argv[i]) == "-A") {
-			include_upper_case_alpha = true;
-		}
-		 
-		else if(std::string(argv[i]) == "-d") {
-			include_digits = true;
-		}
-		
-		else if(std::string(argv[i]) == "-S") {
-			include_symbols = true;
-		}
-		
-		else if(std::string(argv[i]) == "-j") {
-			include_japanese = true;
-		}
-		
 		else if(std::string(argv[i]) == "-h") {
 			print_usage();
 			exit(0);
@@ -397,7 +385,35 @@ void process_arguments(int argc, char *argv[]) {
 				++i;
 			}
 		}
-		
+
+		else if(std::string(argv[i]) == "-s") {
+			random_speed = true;
+		}
+
+		else if(std::string(argv[i]) == "-cs" && i != argc - 1) {
+			for(int k = 0; k < std::string(argv[i + 1]).length(); k++) {
+				if(argv[i + 1][k] == 'a') {
+					characters.insert(characters.end(), lower_case_alpha.begin(), lower_case_alpha.end());
+				} else if(argv[i + 1][k] == 'A') {
+					characters.insert(characters.end(), upper_case_alpha.begin(), upper_case_alpha.end());
+				} else if(argv[i + 1][k] == 'd') {
+					characters.insert(characters.end(), digits.begin(), digits.end());
+				} else if(argv[i + 1][k] == 's') {
+					characters.insert(characters.end(), symbols.begin(), symbols.end());
+				} else if(argv[i + 1][k] == 'j') {
+					characters.insert(characters.end(), japanese.begin(), japanese.end());
+				} else if(argv[i + 1][k] == 'g') {
+					characters.insert(characters.end(), greek.begin(), greek.end());
+				} else if(argv[i + 1][k] == 'S') {
+					characters.insert(characters.end(), matrix_symbols.begin(), matrix_symbols.end());
+				} else {
+					std::cout << "Invalid Characted Set \"" << argv[i + 1][k] << "\"\n";
+					exit(0);
+				}
+			}
+			i++;
+		}
+
 		else {
 			print_usage();
 			exit(1);
