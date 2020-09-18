@@ -13,5 +13,6 @@ Here are some screenshots!
 
 ### How Do I Install & Uninstall?
 
-To install, cd into the source folder, then `sudo make install`
-To uninstall, cd into the source folder, then `sudo make uninstall`
+To install, cd into the source folder, then `sudo make install`.
+
+To uninstall, cd into the source folder, then `sudo make uninstall`.
