@@ -10,3 +10,8 @@ Here are some screenshots!
 ![ascii](https://github.com/static-startup/cppm/blob/master/images/ascii.png)
 ![wacky](https://github.com/static-startup/cppm/blob/master/images/wacky.png)
 ![classic](https://github.com/static-startup/cppm/blob/master/images/classic.png)
+
+### How Do I Install & Uninstall?
+
+To install, cd into the source folder, then `sudo make install`
+To uninstall, cd into the source folder, then `sudo make uninstall`
