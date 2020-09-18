@@ -16,5 +16,6 @@ static bool all_bold = false;
 static bool rainbow = false;
 static bool reverse = false;
 static bool random_speed = false;
+static bool flashes = false;
 
 # endif

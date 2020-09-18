@@ -8,9 +8,7 @@
 # include <string>
 # include <time.h>
 # include <array>
-
 # include "config.h"
-
 std::vector<wint_t> characters;
 
 std::vector<wint_t> lower_case_alpha = {
@@ -63,6 +61,7 @@ class user_interface {
 				wint_t value;
 				int attribute;
 				bool is_head;
+				bool flash = false;
 		};
 
 		unsigned long timer = current_time();
@@ -186,6 +185,7 @@ class user_interface {
 						if(i != 0) {
 							matrix[i][k].value = ' ';
 							matrix[i][k].attribute = COLOR_PAIR(matrix_color.size() + 2);
+							matrix[i][k].flash = false;
 						}
 
 						// does it have no tail
@@ -195,6 +195,9 @@ class user_interface {
 								
 						// loop until head is found
 						while(i != matrix.size() - 1 && !matrix[i][k].is_head) {
+							if(matrix[i][k].flash) {
+								matrix[i][k].value = random_character();
+							}
 							++i;
 						}
 
@@ -212,20 +215,23 @@ class user_interface {
 							matrix[i][k].attribute = random_attribute(false);
 
 							if(i != matrix.size() - 2
-							&& rand() % 10 == 0
+							&& rand() % 15 == 0
 							&& random_speed) {
 
 								matrix[i + 1][k].is_head = false;
 								matrix[i + 1][k].value = random_character();
 								matrix[i + 1][k].attribute = random_attribute(false);
+								matrix[i + 1][k].flash = flashes && rand() % 6 == 0 ? true : false;
 
 								matrix[i + 2][k].is_head = true;
 								matrix[i + 2][k].value = random_character();
 								matrix[i + 2][k].attribute = random_attribute(true);
+								matrix[i + 2][k].flash = flashes && rand() % 6 == 0 ? true : false;
 							} else {
 								matrix[i + 1][k].is_head = true;
 								matrix[i + 1][k].value = random_character();
 								matrix[i + 1][k].attribute = random_attribute(true);
+								matrix[i + 1][k].flash = flashes && rand() % 6 == 0 ? true : false;
 							}
 						} else if(matrix[i][k].is_head) { // remove head
 							matrix[i][k].is_head = false;
@@ -272,7 +278,7 @@ class user_interface {
 
 void print_usage() {
 	std::cout << " Usage: cppm [-d DELAY] [-sr SPAWN_RATE] [-l MAX_LENGTH] [-m MIN_LENGTH] [-b] [-B]"
-			  << "[-r] [-R] [-h] [-hc COLOR] [-bc COLOR] [-s] [-c COLOR] [-cs CHARACTER_SETS]\n\n";
+			  << "[-r] [-R] [-h] [-hc COLOR] [-bc COLOR] [-s] [-c COLOR] [-cs CHARACTER_SETS] [-f]\n\n";
 	std::cout << " -d:  delay (0 - 10) delay before screen update\n";
 	std::cout << " -sr: spawn rate (0 - 10) of rows\n";
 	std::cout << " -l:  length (0 - 50) row length\n";
@@ -286,6 +292,7 @@ void print_usage() {
 	std::cout << " -bc: background color\n";
 	std::cout << " -s:  random speed\n";
 	std::cout << " -c:  set matrix color\n";
+	std::cout << " -f:  character flashes to different character\n";
 	std::cout << " -cs: set character sets\n\n";
 	std::cout << " Colors: black, red, yellow, green, blue, magenta, cyan, white, none\n\n";
 	std::cout << " Character Sets:\n a: lower case alphabet\n A: upper case alphabet\n d: 0-9 numbers"
@@ -388,6 +395,10 @@ void process_arguments(int argc, char *argv[]) {
 
 		else if(std::string(argv[i]) == "-s") {
 			random_speed = true;
+		}
+
+		else if(std::string(argv[i]) == "-f") {
+			flashes = true;
 		}
 
 		else if(std::string(argv[i]) == "-cs" && i != argc - 1) {
