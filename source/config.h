@@ -1,27 +1,16 @@
 # ifndef CONFIG_H
 # define CONFIG_H
 
-/* max = 10
- * min = 0 */
 static int delay = 5;
-
-/* max = 10 
- * min = 0 */
-static int drip_spawn_rate = 8;
-
-/* max = 50
- * min = 0 */
-static int drip_length = 35;
-
-/* max = 49
- * min = 0 */
-static int min_drip_length = 4;
+static int drip_spawn_rate = 5;
+static int drip_length = 25;
+static int min_drip_length = 5;
 
 /* colors */
-static std::vector<int> matrix_color = { GREEN };
+static std::vector<int> matrix_color;
 
-static int head_color = WHITE;
-static int background_color = DEFAULT;
+static int head_color = 7;
+static int background_color = -1;
 
 /* bold */
 static bool random_bold = false;

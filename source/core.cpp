@@ -9,18 +9,6 @@
 # include <time.h>
 # include <array>
 
-static constexpr int BLACK =   0;
-static constexpr int RED =     1;
-static constexpr int GREEN =   2;
-static constexpr int YELLOW =  3;
-static constexpr int BLUE =    4;
-static constexpr int MAGENTA = 5;
-static constexpr int CYAN =    6;
-static constexpr int WHITE =   7;
-
-static constexpr int DEFAULT = -1;
-static constexpr int BOLD = A_BOLD;
-
 # include "config.h"
 
 class user_interface {
@@ -69,8 +57,6 @@ class user_interface {
 			L'ﾘ', L'ﾙ', L'ﾚ', L'ﾛ', L'ﾜ', L'ﾝ',
 		};
 
-		int matrix_w, matrix_h;
-
 		unsigned long current_time() {
 			return std::chrono::duration_cast<std::chrono::milliseconds>(
 					std::chrono::system_clock::now().time_since_epoch()).count();
@@ -84,7 +70,9 @@ class user_interface {
 			}
 			start_color();
 			use_default_colors();
+		}
 
+		void init_color_pairs() {
 			if(rainbow) {
 				matrix_color = {1, 2, 3, 4, 5, 6, 7};
 			}
@@ -135,17 +123,7 @@ class user_interface {
 			exit(0);
 		}
 
-		void bound_config() {
-			if(delay > 10 || delay < 0) {
-				quit("invalid delay " + std::to_string(delay));
-			} else if(drip_spawn_rate > 10 || drip_spawn_rate < 0) {
-				quit("invalid spawn rate " + std::to_string(delay));
-			} else if(drip_length > 50 || drip_length < 0) {
-				quit("invalid drip length " + std::to_string(drip_length));
-			} else if(min_drip_length > 49 || min_drip_length < 0) {
-				quit("invalid min drip length " + std::to_string(drip_length));
-			}
-
+		void include_charsets() {
 			if(include_lower_case_alpha) {
 				characters.insert(characters.end(), lower_case_alpha.begin(), lower_case_alpha.end());
 			} if(include_upper_case_alpha) {
@@ -159,117 +137,122 @@ class user_interface {
 			}
 		}
 
-		void loop() {
+		void bound_config() {
+			if(delay > 10 || delay < 0) {
+				quit("invalid delay " + std::to_string(delay));
+			} else if(drip_spawn_rate > 10 || drip_spawn_rate < 0) {
+				quit("invalid spawn rate " + std::to_string(delay));
+			} else if(drip_length > 50 || drip_length < 0) {
+				quit("invalid drip length " + std::to_string(drip_length));
+			} else if(min_drip_length > 49 || min_drip_length < 0) {
+				quit("invalid min drip length " + std::to_string(drip_length));
+			}
+		}
 
-			bound_config();
-			
+		std::vector<std::vector<node>> init_matrix() {
+			std::vector<std::vector<node>> matrix;
+			for(int i = 0; i < LINES; i++) {
+				matrix.push_back(std::vector<node>());
+				for(int k = 0; k < COLS; k++) {
+					matrix[i].push_back({' ', COLOR_PAIR(matrix_color.size() + 2), false});
+				}
+			}
+			return matrix;
+		}
+
+		void draw_matrix(std::vector<std::vector<node>> matrix) {
+			for(int i = 0; i < matrix.size(); i++) {
+				for(int k = 0; k < matrix[0].size(); k++) {
+					wattron(stdscr, matrix[i][k].attribute);
+					mvwprintw(stdscr, i, k, "%lc", matrix[i][k].value);
+					wattroff(stdscr, matrix[i][k].attribute);
+				}
+			}
+		}
+
+		std::vector<std::vector<node>> update_matrix(std::vector<std::vector<node>> matrix) {
+			for(int k = 0; k < matrix[0].size(); k++) {
+				for(int i = 0; i < matrix.size(); i++) {
+					// add random code drip
+					if(rand() % drip_spawn_rate == 0
+					&& matrix[0][k].value == ' ') {
+
+						matrix[0][k].is_head = true;
+						matrix[0][k].value = random_character();
+						matrix[0][k].attribute = random_attribute(true);
+					}
+
+					// if tail of column found
+					if(matrix[i][k].value != ' ') {
+						bool no_tail = false;
+
+						// remove tail
+						if(i != 0) {
+							matrix[i][k].value = ' ';
+							matrix[i][k].attribute = COLOR_PAIR(matrix_color.size() + 2);
+						}
+
+						// does it have no tail
+						if(i == 0) {
+							no_tail = true;
+						}
+								
+						// loop until head is found
+						while(i != matrix.size() - 1 && !matrix[i][k].is_head) {
+							++i;
+						}
+
+						// if no tail randomly add tail
+						if(no_tail
+						&& rand() % drip_length == 0
+						&& i > min_drip_length) {
+
+							matrix[0][k].value = ' ';
+							matrix[0][k].attribute = COLOR_PAIR(matrix_color.size() + 2);
+						}
+
+						if(i != matrix.size() - 1) { // move head
+							matrix[i][k].is_head = false;
+							matrix[i][k].attribute = random_attribute(false);
+
+							matrix[i + 1][k].is_head = true;
+							matrix[i + 1][k].value = random_character();
+							matrix[i + 1][k].attribute = random_attribute(true);
+						} else if(matrix[i][k].is_head) { // remove head
+							matrix[i][k].is_head = false;
+							matrix[i][k].attribute = random_attribute(false);
+						}
+
+						i++;
+					}
+				}
+			}
+			return matrix;
+		}
+
+		void adjust_config() {
 			drip_spawn_rate *= 1000;
 
-			matrix_w = COLS;
-			matrix_h = LINES;
+			matrix_color = matrix_color.empty() ? std::vector<int>{ 2 } : matrix_color;
 
 			if(characters.empty()) {
 				characters.insert(characters.end(), lower_case_alpha.begin(), lower_case_alpha.end());
 			}
-
-			node matrix[matrix_h][matrix_w];
-
-			for(int i = 0; i < matrix_h; i++) {
-				for(int k = 0; k < matrix_w; k++) {
-					if(i == 0) {
-						if(rand() % drip_spawn_rate == 0) {
-							matrix[i][k] = {random_character(), random_attribute(true), true};
-						} else {
-							matrix[i][k] = {' ', COLOR_PAIR(matrix_color.size() + 2), false};
-						}
-					} else {
-						matrix[i][k] = {' ', COLOR_PAIR(matrix_color.size() + 2), false};
-					}
-				}
-			}
+		}
+		
+		void loop() {
+			bound_config();
+			include_charsets();
+			adjust_config();
+			init_color_pairs();
+			
+			std::vector<std::vector<node>> matrix = init_matrix();
 
 			while(getch() == ERR) {
 				if(timer < current_time()) {
 					refresh();
-
-					for(int i = 0; i < matrix_h; i++) {
-						for(int k = 0; k < matrix_w; k++) {
-							wattron(stdscr, matrix[i][k].attribute);
-							mvwprintw(stdscr, i, k, "%lc", matrix[i][k].value);
-							wattroff(stdscr, COLOR_PAIR(1)
-											|COLOR_PAIR(2)
-											|A_BOLD
-											|A_REVERSE);
-
-							if(rainbow) {
-								wattroff(stdscr, COLOR_PAIR(3)
-												|COLOR_PAIR(4)
-												|COLOR_PAIR(5)
-												|COLOR_PAIR(6)
-												|COLOR_PAIR(7)
-												|COLOR_PAIR(8)
-												|COLOR_PAIR(9));
-							}
-						}
-					}
-
-					for(int k = 0; k < matrix_w; k++) {
-						for(int i = 0; i < matrix_h; i++) {
-							// add random code drip
-							if(rand() % drip_spawn_rate == 0
-							&& matrix[0][k].value == ' ') {
-
-								matrix[0][k].is_head = true;
-								matrix[0][k].value = random_character();
-								matrix[0][k].attribute = random_attribute(true);
-							}
-
-							// if tail of column found
-							if(matrix[i][k].value != ' ') {
-								bool no_tail = false;
-
-								// remove tail
-								if(i != 0) {
-									matrix[i][k].value = ' ';
-									matrix[i][k].attribute = COLOR_PAIR(matrix_color.size() + 2);
-								}
-
-								// does it have no tail
-								if(i == 0) {
-									no_tail = true;
-								}
-								
-								// loop until head is found
-								while(i != matrix_h - 1 && !matrix[i][k].is_head) {
-									++i;
-								}
-
-								// if no tail randomly add tail
-								if(no_tail
-								&& rand() % drip_length == 0
-								&& i > min_drip_length) {
-
-									matrix[0][k].value = ' ';
-									matrix[0][k].attribute = COLOR_PAIR(matrix_color.size() + 2);
-								}
-
-								if(i != matrix_h - 1) { // move head
-									matrix[i][k].is_head = false;
-									matrix[i][k].attribute = random_attribute(false);
-
-									matrix[i + 1][k].is_head = true;
-									matrix[i + 1][k].value = random_character();
-									matrix[i + 1][k].attribute = random_attribute(true);
-								} else if(matrix[i][k].is_head) { // remove head
-									matrix[i][k].is_head = false;
-									matrix[i][k].attribute = random_attribute(false);
-								}
-
-								i++;
-							}
-						}
-					}
-
+					draw_matrix(matrix);
+					matrix = update_matrix(matrix);
 					timer = current_time() + delay * 8;
 				}
 			}
@@ -330,7 +313,7 @@ int process_color(std::string color) {
 	return color_code;
 }
 
-int main(int argc, char *argv[]) {
+void process_arguments(int argc, char *argv[]) {
 	for(int i = 1; i < argc; i++) {
 		if(std::string(argv[i]) == "-d" && i != argc - 1) {
 			delay = std::stoi(argv[i + 1]);
@@ -420,6 +403,10 @@ int main(int argc, char *argv[]) {
 			exit(1);
 		}
 	}
+}
+
+int main(int argc, char *argv[]) {
+	process_arguments(argc, argv);
 
 	srand(time(NULL));
 
