@@ -6,7 +6,7 @@ To uninstall, cd into the source folder, then `sudo make uninstall`.
 
 ### How Do I Use This?
 
-`
+```
  Usage: cppm [-d DELAY] [-sr SPAWN_RATE] [-l MAX_LENGTH] [-m MIN_LENGTH] [-b] [-B][-r] [-R] [-h] [-hc COLOR] [-bc COLOR] [-s] [-c COLOR] [-cs CHARACTER_SETS] [-f]
 
  -d:  delay (0 - 10) delay before screen update
@@ -35,7 +35,7 @@ To uninstall, cd into the source folder, then `sudo make uninstall`.
  j: half-width japanese kana
  g: greek symbols
  S: symbols from matrix movie
-`
+```
 
 ### What Is "cppm"
 
