@@ -38,7 +38,7 @@ To uninstall, cd into the source folder, then `sudo make uninstall`.
 
  Examples:
  cppm -cs SSsaaAA
- cppm -cs SSgjjj -b
+ cppm -cs SSgjjj -b -f
  cppm -r -B
 ```
 
