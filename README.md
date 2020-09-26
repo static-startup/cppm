@@ -35,6 +35,11 @@ To uninstall, cd into the source folder, then `sudo make uninstall`.
  j: half-width japanese kana
  g: greek symbols
  S: symbols from matrix movie
+
+ Examples:
+ cppm -cs SSsggg
+ cppm -cs SSgjjj
+ cppm -r -R -b
 ```
 
 ### What Is "cppm"
