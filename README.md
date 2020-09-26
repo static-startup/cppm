@@ -37,9 +37,9 @@ To uninstall, cd into the source folder, then `sudo make uninstall`.
  S: symbols from matrix movie
 
  Examples:
- cppm -cs SSsggg
- cppm -cs SSgjjj
- cppm -r -R -b
+ cppm -cs SSsaaAA
+ cppm -cs SSgjjj -b
+ cppm -r -B
 ```
 
 ### What Is "cppm"

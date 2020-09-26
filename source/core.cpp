@@ -297,7 +297,7 @@ void print_usage() {
 	std::cout << " Colors: black, red, yellow, green, blue, magenta, cyan, white, none\n\n";
 	std::cout << " Character Sets:\n a: lower case alphabet\n A: upper case alphabet\n d: 0-9 numbers"
 			  << "\n s: common symbols\n j: half-width japanese kana\n g: greek symbols\n S: symbols from matrix movie\n";
-	std::cout << "\n Examples:\n cppm -cs SSsggg \n cppm -cs SSgjjj\n cppm -r -R -b\n";
+	std::cout << "\n Examples:\n cppm -cs SSsaaAA \n cppm -cs SSgjjj -b\n cppm -r -B\n";
 	exit(0);
 }
 
